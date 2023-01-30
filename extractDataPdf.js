@@ -29,66 +29,65 @@ async function extractDataFromPdf() {
   await Promise.all(files.map(async (file) => {
 
     let acordao = await new Promise(async (resolve, reject) => {
-      await pdfParse(`${pathPdf}/${file}`).then(function (data) {
-        const DataText = data.text;
-        // console.log(DataText);
-
-        console.log('Lendo Arquivo: ', file);
-
-        let arquivo = file;
-        
-        let processo = /PROCESSO(.*?)\n/gi.exec(DataText)[1].trim().replace(/[^\d]/g, '').substring(0, 11);
-
-        let num_acordao = DataText.includes('ACÓRDÃO') ? 
-          /ACÓRDÃO(.*)/gi.exec(DataText)[1].trim().replace(/[^0-9\/]/g, '') == '' ? 
-          /ACÓRDÃO[\s\S]*Nº\s*(.*)/gi.exec(DataText)[1].trim().replace(/[^0-9\/]/g, '') : 
-          /ACÓRDÃO(.*)/gi.exec(DataText)[1].trim().replace(/[^0-9\/]/g, '') :
-          DataText.includes('ACORDÃO') ? 
-          /ACORDÃO(.*)/gi.exec(DataText)[1].trim().replace(/[^0-9\/]/g, '') :
-          DataText.includes('O N. º') ? 
-          /O N. º(.*)/gi.exec(DataText)[1].trim().replace(/[^0-9\/]/g, '') :
-          DataText.includes('A C Ó R D Ã O') ? 
-          /A\sC\sÓ\sR\sD\sÃ\sO(.*)/gi.exec(DataText)[1].trim().replace(/[^0-9\/]/g, '') : 'ERRO::::'
-        ;
-        
-        let tributo = 'N/D';
-        const conditionsTrib = [
-          { condition: DataText.includes('IPTU') || DataText.includes('71/2013'), tributo: 'IPTU' },
-          { condition: DataText.includes('ITIV') || DataText.includes('ITBI') || DataText.includes('TRANSMISSÃO INTER'), tributo: 'ITBI' },
-          { condition: DataText.includes('ISSQN') || DataText.includes('ISS  SUBSTITUTO') || DataText.includes('SERVIÇOS  DE  QUALQUER  NATUREZA') || DataText.includes('ISS SUBSTITUTO') || DataText.includes('ISS.') || DataText.includes(' ISS ') || DataText.includes('QN – SUBSTITUTO'), tributo: 'ISSQN' },
-          { condition: DataText.includes('DMS') || DataText.includes('DECLARAÇÃO MENSAL DE SERVIÇOS') || DataText.includes('OBRIGAÇÃO ACESSÓRIA'), tributo: 'OBRIGAÇÃO ACESSÓRIA' },
-          { condition: DataText.toLowerCase().includes('taxa ') || DataText.includes('ALVARÁ'), tributo: 'TAXAS' }
-        ];
-        
-        conditionsTrib.forEach(c => {
-          if (c.condition) {
-            tributo = c.tributo;
-            return;
-          }
-        });
-
-        let resultado = DataText.toLowerCase().includes('improvido') ? 'IMPROVIDO' : 
-        DataText.toLowerCase().includes('desprovido') ? 'IMPROVIDO' : 
-        DataText.toLowerCase().includes('provido') ? 'PROVIDO' : 'NÃO CONHECIDO';
-
-        let tipo_recurso = DataText.toLowerCase().includes('voluntário' || 'voluntario') ? 'RECURSO VOLUNTÁRIO' : 'RECURSO DE OFÍCIO';
-
-        let data_julgamento = DataText.toLowerCase().includes('data de julgamento') ?
-        /Julgamento\:(.*?)\./gi.exec(DataText)[1].trim() :
-        DataText.includes('Data do julgamento') ? 
-        /julgamento\:(.*?)\./gi.exec(DataText)[1].trim() :
-        /Parnamirim,\s(.*?)\./gi.exec(DataText)[1].trim();
-        
+      await pdfParse(`${pathPdf}/${file}`).then((data) => {
         try {
+          const dataText = data.text;
+          // console.log(dataText);
+
+          console.log('Lendo Arquivo: ', file);
+
+          let nome_arquivo = file;
+
+          let num_processo = /PROCESSO(.*?)\n/gi.exec(dataText)[1].trim().replace(/[^\d]/g, '').substring(0, 11);
+
+          let num_acordao = dataText.includes('ACÓRDÃO') ?
+            /ACÓRDÃO(.*)/gi.exec(dataText)[1].trim().replace(/[^0-9\/]/g, '') == '' ?
+              /ACÓRDÃO[\s\S]*Nº\s*(.*)/gi.exec(dataText)[1].trim().replace(/[^0-9\/]/g, '') :
+              /ACÓRDÃO(.*)/gi.exec(dataText)[1].trim().replace(/[^0-9\/]/g, '') :
+            dataText.includes('ACORDÃO') ?
+              /ACORDÃO(.*)/gi.exec(dataText)[1].trim().replace(/[^0-9\/]/g, '') :
+              dataText.includes('O N. º') ?
+                /O N. º(.*)/gi.exec(dataText)[1].trim().replace(/[^0-9\/]/g, '') :
+                dataText.includes('A C Ó R D Ã O') ?
+                  /A\sC\sÓ\sR\sD\sÃ\sO(.*)/gi.exec(dataText)[1].trim().replace(/[^0-9\/]/g, '') : 'ERRO::::';
+
+          let tributo = 'N/D';
+          const conditionsTrib = [
+            { condition: dataText.includes('IPTU') || dataText.includes('71/2013'), tributo: 'IPTU' },
+            { condition: dataText.includes('ITIV') || dataText.includes('ITBI') || dataText.includes('TRANSMISSÃO INTER'), tributo: 'ITBI' },
+            { condition: dataText.includes('ISSQN') || dataText.includes('ISS  SUBSTITUTO') || dataText.includes('SERVIÇOS  DE  QUALQUER  NATUREZA') || dataText.includes('ISS SUBSTITUTO') || dataText.includes('ISS.') || dataText.includes(' ISS ') || dataText.includes('QN – SUBSTITUTO'), tributo: 'ISSQN' },
+            { condition: dataText.includes('DMS') || dataText.includes('DECLARAÇÃO MENSAL DE SERVIÇOS') || dataText.includes('OBRIGAÇÃO ACESSÓRIA'), tributo: 'OBRIGAÇÃO ACESSÓRIA' },
+            { condition: dataText.toLowerCase().includes('taxa ') || dataText.includes('ALVARÁ'), tributo: 'TAXAS' }
+          ];
+
+          conditionsTrib.forEach(c => {
+            if (c.condition) {
+              tributo = c.tributo;
+              return;
+            }
+          });
+
+          let resultado = dataText.toLowerCase().includes('improvido') ? 'IMPROVIDO' :
+            dataText.toLowerCase().includes('desprovido') ? 'IMPROVIDO' :
+              dataText.toLowerCase().includes('provido') ? 'PROVIDO' : 'NÃO CONHECIDO';
+
+          let tipo_recurso = dataText.toLowerCase().includes('voluntário' || 'voluntario') ? 'RECURSO VOLUNTÁRIO' : 'RECURSO DE OFÍCIO';
+
+          let data_julgamento = dataText.toLowerCase().includes('data de julgamento') ?
+            /Julgamento\:(.*?)\./gi.exec(dataText)[1].trim() :
+            dataText.includes('Data do julgamento') ?
+              /julgamento\:(.*?)\./gi.exec(dataText)[1].trim() :
+              /Parnamirim,\s(.*?)\./gi.exec(dataText)[1].trim();
+
           resolve({
-            processo,
+            num_processo,
             num_acordao,
             tributo,
             tipo_recurso,
             resultado,
             data_julgamento,
-            arquivo
-          });  
+            nome_arquivo
+          });
         } catch (error) {
           console.log('Erro no arquivo:', file);
         }

@@ -22,7 +22,6 @@ const acs = [
   '2022-09-19-11.39.18.200.pdf'
 ];
 
-
 const fs = require('fs');
 
 function copyFiles(files) {
