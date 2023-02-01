@@ -3,7 +3,7 @@ const pdfParse = require('pdf-parse');
 const xlsx = require('xlsx');
 const path = require('path');
 
-const pathPdf = 'data';
+const pathPdf = 'data3';
 const files = fs.readdirSync(pathPdf);
 let acordaos = [];
 
@@ -14,7 +14,7 @@ async function exportResultsToExcel() {
   const timeString = currentDate.toLocaleTimeString().replace(/:/g, '');
   const fileName = `${sheetName}_${dateString}_${timeString}.xlsx`;
   const filePath = path.join(__dirname, fileName);
-  
+
   var workbook = xlsx.utils.book_new();
   var worksheet = xlsx.utils.json_to_sheet(acordaos);
   xlsx.utils.book_append_sheet(workbook, worksheet, sheetName);
@@ -29,8 +29,9 @@ async function extractDataFromPdf() {
   await Promise.all(files.map(async (file) => {
 
     let acordao = await new Promise(async (resolve, reject) => {
-      await pdfParse(`${pathPdf}/${file}`).then((data) => {
-        try {
+      try {
+        await pdfParse(`${pathPdf}/${file}`).then((data) => {
+
           const dataText = data.text;
           // console.log(dataText);
 
@@ -40,16 +41,27 @@ async function extractDataFromPdf() {
 
           let num_processo = /PROCESSO(.*?)\n/gi.exec(dataText)[1].trim().replace(/[^\d]/g, '').substring(0, 11);
 
-          let num_acordao = dataText.includes('ACÓRDÃO') ?
-            /ACÓRDÃO(.*)/gi.exec(dataText)[1].trim().replace(/[^0-9\/]/g, '') == '' ?
-              /ACÓRDÃO[\s\S]*Nº\s*(.*)/gi.exec(dataText)[1].trim().replace(/[^0-9\/]/g, '') :
-              /ACÓRDÃO(.*)/gi.exec(dataText)[1].trim().replace(/[^0-9\/]/g, '') :
-            dataText.includes('ACORDÃO') ?
-              /ACORDÃO(.*)/gi.exec(dataText)[1].trim().replace(/[^0-9\/]/g, '') :
-              dataText.includes('O N. º') ?
-                /O N. º(.*)/gi.exec(dataText)[1].trim().replace(/[^0-9\/]/g, '') :
-                dataText.includes('A C Ó R D Ã O') ?
-                  /A\sC\sÓ\sR\sD\sÃ\sO(.*)/gi.exec(dataText)[1].trim().replace(/[^0-9\/]/g, '') : 'ERRO::::';
+          // let num_acordao = dataText.includes('ACÓRDÃO') ?
+          //   /ACÓRDÃO(.*)/gi.exec(dataText)[1].trim().replace(/[^0-9\/]/g, '') == '' ?
+          //     /ACÓRDÃO[\s\S]*Nº\s*(.*)/gi.exec(dataText)[1].trim().replace(/[^0-9\/]/g, '') :
+          //     /ACÓRDÃO(.*)/gi.exec(dataText)[1].trim().replace(/[^0-9\/]/g, '') :
+          //   dataText.includes('ACORDÃO') ?
+          //     /ACORDÃO(.*)/gi.exec(dataText)[1].trim().replace(/[^0-9\/]/g, '') :
+          //     dataText.includes('O N. º') ?
+          //       /O N. º(.*)/gi.exec(dataText)[1].trim().replace(/[^0-9\/]/g, '') :
+          //       dataText.includes('A C Ó R D Ã O') ?
+          //         /A\sC\sÓ\sR\sD\sÃ\sO(.*)/gi.exec(dataText)[1].trim().replace(/[^0-9\/]/g, '') : 'ERRO::::';
+
+          let num_acordao = 'N/E';
+          const acordaosArray = ['ACÓRDÃO', 'ACORDÃO', 'ACORDAO', 'A C Ó R D Ã O', 'O N. º'];
+          for (const acordaoEl of acordaosArray) {
+            if (dataText.includes(acordaoEl)) {
+              let result = new RegExp(`${acordaoEl}(.*)`, 'gi').exec(dataText)[1].trim().replace(/[^0-9\/]/g, '');
+              // num_acordao = result || new RegExp(`${acordaoEl}[\\s\\S]*Nº\\s*(.*)`, 'gi').exec(dataText)[1].trim().replace(/[^0-9\/]/g, '');
+              num_acordao = result || new RegExp(`${acordaoEl}(.*)`, 'gs').exec(dataText)[1].trim().replace(/[^0-9\/]/g, '');
+              break;
+            }
+          }
 
           let tributo = 'N/D';
           const conditionsTrib = [
@@ -88,17 +100,17 @@ async function extractDataFromPdf() {
             data_julgamento,
             nome_arquivo
           });
-        } catch (error) {
-          console.log('Erro no arquivo:', file);
-        }
-      });
+        }); // aqui
+      } catch (error) {
+        reject(console.log('Erro no arquivo:', file, '->', error));
+      }
     });
 
     acordaos.push(acordao);
   }));
 
   console.log(acordaos);
-  exportResultsToExcel();
+  // exportResultsToExcel();
 }
 
 extractDataFromPdf();
