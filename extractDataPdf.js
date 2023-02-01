@@ -41,24 +41,13 @@ async function extractDataFromPdf() {
 
           let num_processo = /PROCESSO(.*?)\n/gi.exec(dataText)[1].trim().replace(/[^\d]/g, '').substring(0, 11);
 
-          // let num_acordao = dataText.includes('ACÓRDÃO') ?
-          //   /ACÓRDÃO(.*)/gi.exec(dataText)[1].trim().replace(/[^0-9\/]/g, '') == '' ?
-          //     /ACÓRDÃO[\s\S]*Nº\s*(.*)/gi.exec(dataText)[1].trim().replace(/[^0-9\/]/g, '') :
-          //     /ACÓRDÃO(.*)/gi.exec(dataText)[1].trim().replace(/[^0-9\/]/g, '') :
-          //   dataText.includes('ACORDÃO') ?
-          //     /ACORDÃO(.*)/gi.exec(dataText)[1].trim().replace(/[^0-9\/]/g, '') :
-          //     dataText.includes('O N. º') ?
-          //       /O N. º(.*)/gi.exec(dataText)[1].trim().replace(/[^0-9\/]/g, '') :
-          //       dataText.includes('A C Ó R D Ã O') ?
-          //         /A\sC\sÓ\sR\sD\sÃ\sO(.*)/gi.exec(dataText)[1].trim().replace(/[^0-9\/]/g, '') : 'ERRO::::';
-
-          let num_acordao = 'N/E';
+          let num_acordao = 'N/D';
           const acordaosArray = ['ACÓRDÃO', 'ACORDÃO', 'ACORDAO', 'A C Ó R D Ã O', 'O N. º'];
           for (const acordaoEl of acordaosArray) {
             if (dataText.includes(acordaoEl)) {
-              let result = new RegExp(`${acordaoEl}(.*)`, 'gi').exec(dataText)[1].trim().replace(/[^0-9\/]/g, '');
-              // num_acordao = result || new RegExp(`${acordaoEl}[\\s\\S]*Nº\\s*(.*)`, 'gi').exec(dataText)[1].trim().replace(/[^0-9\/]/g, '');
-              num_acordao = result || new RegExp(`${acordaoEl}(.*)`, 'gs').exec(dataText)[1].trim().replace(/[^0-9\/]/g, '');
+              num_acordao = 
+                new RegExp(`${acordaoEl}(.*)`, 'gi').exec(dataText)[1].trim().replace(/[^0-9\/]/g, '') || 
+                new RegExp(`${acordaoEl}(.*)`, 'gs').exec(dataText)[1].trim().replace(/[^0-9\/]/g, '');
               break;
             }
           }
@@ -79,10 +68,12 @@ async function extractDataFromPdf() {
             }
           });
 
+          // Pegar também o 'PARCIALMENTE PROVIDO'
           let resultado = dataText.toLowerCase().includes('improvido') ? 'IMPROVIDO' :
             dataText.toLowerCase().includes('desprovido') ? 'IMPROVIDO' :
               dataText.toLowerCase().includes('provido') ? 'PROVIDO' : 'NÃO CONHECIDO';
 
+          // appeal
           let tipo_recurso = dataText.toLowerCase().includes('voluntário' || 'voluntario') ? 'RECURSO VOLUNTÁRIO' : 'RECURSO DE OFÍCIO';
 
           let data_julgamento = dataText.toLowerCase().includes('data de julgamento') ?
