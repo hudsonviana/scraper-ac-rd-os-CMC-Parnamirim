@@ -58,22 +58,27 @@ async function extractData(dataText, file) {
     }
   });
 
-  // let resultado_recurso = dataText.toLowerCase().includes('improvido') ? 'IMPROVIDO' :
-  //   dataText.toLowerCase().includes('desprovido') ? 'IMPROVIDO' :
-  //   dataText.toLowerCase().includes('parcialmente provido') ? 'PARCIALMENTE PROVIDO' :
-  //   dataText.toLowerCase().includes('provido') ? 'PROVIDO' : 'NÃO CONHECIDO';
+  // let tributo = 'N/D';
+  // const taxTargets = [
+  //   { regex: /IPTU|71\/2013/i, tributo: 'IPTU' },
+  //   { regex: /ITIV|ITBI|TRANSMISSÃO INTER/i, tributo: 'ITBI' },
+  //   { regex: /ISSQN|ISS(  SUBSTITUTO| SUBSTITUTO|\.)|SERVIÇOS  DE  QUALQUER  NATUREZA|ISS | ISS |QN – SUBSTITUTO/i, tributo: 'ISSQN' },
+  //   { regex: /DMS|DECLARAÇÃO MENSAL DE SERVIÇOS|OBRIGAÇÃO ACESSÓRIA/i, tributo: 'OBRIGAÇÃO ACESSÓRIA' },
+  //   { regex: /TAXA |ALVARÁ/i, tributo: 'TAXAS' },
+  // ];
+  // taxTargets.forEach(taxTarget => {
+  //   if (taxTarget.regex.test(dataText)) {
+  //     tributo = taxTarget.tributo;
+  //     return;
+  //   }
+  // });
 
-  // const appealResultTargets = /IMPROVIDO|DESPROVIDO|PARCIALMENTE PROVIDO|PROVIDO/gi;
-  // let resultado_recurso = appealResultTargets.test(dataText) ? 
-  // dataText.match(appealResultTargets)[0] === 'DESPROVIDO' ? 'IMPROVIDO' : dataText.toUpperCase().match(appealResultTargets)[0] : 'NÃO CONHECIDO';
-
-  const appealResultTargets = /IMPROVIDO|DESPROVIDO|PARCIALMENTE PROVIDO|PROVIDO/gi;
+  const appealResultTargets = /IMPROVIDO|DESPROVIDO|PARCIALMENTE PROVIDO|PARCIALMENTE\s+PROVIDO|PROVIDO|JULGAR EXTINTO/gi;
   let resultado_recurso = appealResultTargets.test(dataText) ?
-    dataText.toUpperCase().match(appealResultTargets)[0].replace(/DESPROVIDO/gi, 'IMPROVIDO') : 'NÃO CONHECIDO';
-
-  // let tipo_recurso = dataText.toLowerCase().includes('voluntário' || 'voluntario') ? 'RECURSO VOLUNTÁRIO' : 'RECURSO DE OFÍCIO';
-
-  let tipo_recurso = /RECURSO VOLUNT(ÁRIO|ARIO)/i.test(dataText) ? 'RECURSO VOLUNTÁRIO' : 'RECURSO DE OFÍCIO';
+  dataText.toUpperCase().match(appealResultTargets)[0].replace(/DESPROVIDO/gi, 'IMPROVIDO').replace(/JULGAR EXTINTO/gi, 'EXTINTO') : 'NÃO CONHECIDO';
+  
+  const appealTargets = /RECURSO VOLUNT(ÁRIO|ARIO)|RECURSO\s+VOLUNT(ÁRIO|ARIO)/gi;
+  let tipo_recurso = appealTargets.test(dataText) ? 'RECURSO VOLUNTÁRIO' : 'RECURSO DE OFÍCIO';
 
   let data_julgamento = dataText.toLowerCase().includes('data de julgamento') ?
     /Julgamento\:(.*?)\./gi.exec(dataText)[1].trim() :
