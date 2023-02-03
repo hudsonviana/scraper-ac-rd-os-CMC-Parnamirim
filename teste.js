@@ -22,15 +22,21 @@ const acs = [
   '2022-09-19-11.39.18.200.pdf'
 ];
 
-const fs = require('fs');
+// const fs = require('fs');
 
-function copyFiles(files) {
-  files.forEach(file => {
-    fs.copyFile(`data/${file}`, `data3/${file}`, (err) => {
-      if (err) throw err;
-      console.log(`${file} was copied to data3`);
-    });
-  });
-}
+// function copyFiles(files) {
+//   files.forEach(file => {
+//     fs.copyFile(`data/${file}`, `data3/${file}`, (err) => {
+//       if (err) throw err;
+//       console.log(`${file} was copied to data3`);
+//     });
+//   });
+// }
 
-copyFiles(acs);
+// copyFiles(acs);
+
+
+const text = ': 07 de dezembro de 2022';
+const date = text.replace(/^\s*:\s*/, '');
+console.log(date);
+
