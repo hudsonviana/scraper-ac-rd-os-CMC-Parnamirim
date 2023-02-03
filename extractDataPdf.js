@@ -28,63 +28,77 @@ async function exportResultsToExcel() {
 async function extractData(dataText, file) {
   console.log('Lendo Arquivo: ', file);
 
-  // Nome do arquivo
-  let nome_arquivo = file;
+  const extractedData = {
+    num_processo: extractProcessNumber(dataText),
+    num_acordao: extractJudgmentNumber(dataText),
+    obrigacao_tributaria: extractTaxObligation(dataText),
+    tipo_recurso: extractAppealType(dataText),
+    resultado_recurso: extractAppealResult(dataText),
+    data_julgamento: extractJudgmentDate(dataText),
+    nome_arquivo: extractFileName(file),
+  };
 
-  // Número do processo
-  let num_processo = /PROCESSO(.*?)\n/gi.exec(dataText)[1].trim().replace(/[^\d]/g, '').substring(0, 11);
+  judgments.push(extractedData);
+}
 
-  // Número do acórdão
-  let num_acordao = 'N/D';
+function extractFileName(file) {
+  return file;
+}
+
+function extractProcessNumber(dataText) {
+  let processNumber = /PROCESSO(.*?)\n/gi.exec(dataText)[1].trim().replace(/[^\d]/g, '').substring(0, 11) || 'N/D';
+  return processNumber;
+}
+
+function extractJudgmentNumber(dataText) {
+  let judgmentNumber = 'N/D';
   const judgmentNumberTargets = ['ACÓRDÃO', 'ACORDÃO', 'ACORDAO', 'A C Ó R D Ã O', 'O N. º'];
   for (const judgmentNumberTarget of judgmentNumberTargets) {
     if (dataText.includes(judgmentNumberTarget)) {
-      num_acordao =
+      judgmentNumber =
         new RegExp(`${judgmentNumberTarget}(.*)`, 'gi').exec(dataText)[1].trim().replace(/[^0-9\/]/g, '') ||
         new RegExp(`${judgmentNumberTarget}(.*)`, 'gs').exec(dataText)[1].trim().replace(/[^0-9\/]/g, '');
       break;
     }
   }
+  return judgmentNumber;
+}
 
-  // Obrigação tributária
-  let tributo = 'N/D';
+function extractTaxObligation(dataText) {
+  let taxObligation = 'N/D';
   const taxTargets = [
-    { condition: dataText.includes('IPTU') || dataText.includes('71/2013'), tributo: 'IPTU' },
-    { condition: dataText.includes('ITIV') || dataText.includes('ITBI') || dataText.includes('TRANSMISSÃO INTER'), tributo: 'ITBI' },
-    { condition: dataText.includes('ISSQN') || dataText.includes('ISS  SUBSTITUTO') || dataText.includes('SERVIÇOS  DE  QUALQUER  NATUREZA') || dataText.includes('ISS SUBSTITUTO') || dataText.includes('ISS.') || dataText.includes(' ISS ') || dataText.includes('QN – SUBSTITUTO'), tributo: 'ISSQN' },
-    { condition: dataText.includes('DMS') || dataText.includes('DECLARAÇÃO MENSAL DE SERVIÇOS') || dataText.includes('OBRIGAÇÃO ACESSÓRIA'), tributo: 'OBRIGAÇÃO ACESSÓRIA' },
-    { condition: dataText.toLowerCase().includes('taxa ') || dataText.includes('ALVARÁ'), tributo: 'TAXAS' }
+    { condition: dataText.includes('IPTU') || dataText.includes('71/2013'), taxObligation: 'IPTU' },
+    { condition: dataText.includes('ITIV') || dataText.includes('ITBI') || dataText.includes('TRANSMISSÃO INTER'), taxObligation: 'ITBI' },
+    { condition: dataText.includes('ISSQN') || dataText.includes('ISS  SUBSTITUTO') || dataText.includes('SERVIÇOS  DE  QUALQUER  NATUREZA') || dataText.includes('ISS SUBSTITUTO') || dataText.includes('ISS.') || dataText.includes(' ISS ') || dataText.includes('QN – SUBSTITUTO'), taxObligation: 'ISSQN' },
+    { condition: dataText.includes('DMS') || dataText.includes('DECLARAÇÃO MENSAL DE SERVIÇOS') || dataText.includes('OBRIGAÇÃO ACESSÓRIA'), taxObligation: 'OBRIGAÇÃO ACESSÓRIA' },
+    { condition: dataText.toLowerCase().includes('taxa ') || dataText.includes('ALVARÁ'), taxObligation: 'TAXAS' }
   ];
   taxTargets.forEach(taxTarget => {
     if (taxTarget.condition) {
-      tributo = taxTarget.tributo;
+      taxObligation = taxTarget.taxObligation;
       return;
     }
   });
+  return taxObligation;
+}
 
-  // Resultado do recurso
-  const appealResultTargets = /IMPROVIDO|DESPROVIDO|PARCIALMENTE PROVIDO|PARCIALMENTE\s+PROVIDO|PROVIDO|JULGAR EXTINTO/gi;
-  let resultado_recurso = appealResultTargets.test(dataText) ?
-  dataText.toUpperCase().match(appealResultTargets)[0].replace(/DESPROVIDO/gi, 'IMPROVIDO').replace(/JULGAR EXTINTO/gi, 'EXTINTO') : 'NÃO CONHECIDO';
-  
-  // Tipo de recurso
+function extractAppealType(dataText) {
   const appealTypeTargets = /RECURSO VOLUNT(ÁRIO|ARIO)|RECURSO\s+VOLUNT(ÁRIO|ARIO)|RECURSO DE\s+VOLUNTÁRIO/gi;
-  let tipo_recurso = appealTypeTargets.test(dataText) ? 'RECURSO VOLUNTÁRIO' : 'RECURSO DE OFÍCIO';
-  
-  // Data do julgamento
-  const judgmentDateTargets = /(Data de julgamento|Data do julgamento|Parnamirim,)(.*?)\./gi;
-  let data_julgamento = judgmentDateTargets.exec(dataText)?.[2].trim().replace(/^\s*:\s*/, '') || 'N/D';
+  let appealType = appealTypeTargets.test(dataText) ? 'RECURSO VOLUNTÁRIO' : 'RECURSO DE OFÍCIO';
+  return appealType;
+}
 
-  // Objeto final
-  judgments.push({
-    num_processo,
-    num_acordao,
-    tributo,
-    tipo_recurso,
-    resultado_recurso,
-    data_julgamento,
-    nome_arquivo
-  });
+function extractAppealResult(dataText) {
+  const appealResultTargets = /IMPROVIDO|DESPROVIDO|PARCIALMENTE PROVIDO|PARCIALMENTE\s+PROVIDO|PROVIDO|JULGAR EXTINTO/gi;
+  let appealResult = appealResultTargets.test(dataText) ?
+    dataText.toUpperCase().match(appealResultTargets)[0].replace(/DESPROVIDO/gi, 'IMPROVIDO').replace(/JULGAR EXTINTO/gi, 'EXTINTO') : 'NÃO CONHECIDO';
+  return appealResult;
+}
+
+function extractJudgmentDate(dataText) {
+  const judgmentDateTargets = /(Data de julgamento|Data do julgamento|Parnamirim,)(.*?)\./gi;
+  let judgmentDate = judgmentDateTargets.exec(dataText)?.[2].trim().replace(/^\s*:\s*/, '') || 'N/D';
+  return judgmentDate;
 }
 
 async function getDataTextFromPdf() {
