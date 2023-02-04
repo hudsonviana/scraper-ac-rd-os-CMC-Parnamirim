@@ -86,45 +86,32 @@ function extractJudgmentDate(dataText) {
   return judgmentDate;
 }
 
-// function extractAppellant(dataText) {
-//   const appellantTarget = /(RECORRENTE|EMBARGANTE)(.*?)\n/gi;
-//   console.log(appellantTarget.test(dataText));
-//   // const appellant = appellantTarget.test(dataText) ? appellantTarget.exec(dataText)[2].toUpperCase().replace(/: /, '').trim() : 'N/D';
-//   const appellant = appellantTarget.exec(dataText)[2].toUpperCase().replace(/: /, '').trim() ;
-//   console.log('>> RECORRENTE:', appellant);
-//   return appellant;
-// }
-
 function extractAppellant(dataText) {
   const appellantTarget = /(RECORRENTE|EMBARGANTE)(.*?)\n/gi;
   const result = appellantTarget.exec(dataText);
   if (!result) return 'N/D';
-  const appellant = result[2].toUpperCase().replace(/: /, '').trim();
+  // const appellant = result[2].toUpperCase().replace(/: /, '').replace(':.', '').replace(/\/RECORRIDA|\/RECORRIDO/g, '').replace('(VOLUNTÁRIO)','').replace('(EMBARGO','').replace('(EX-OFFÍCIO)','').replace('(EMBARGO DECLARATÓRIO)', '').trim();
+  const appellant = result[2].toUpperCase().replace(/: |:.|\/RECORRIDA|\/RECORRIDO/g, '').replace(/(\(VOLUNTÁRIO\)|\(EMBARGO DECLARATÓRIO\)|\(EMBARGO|\(EX-OFFÍCIO\))/g, '').trim();
   console.log('>> RECORRENTE:', appellant);
   return appellant;
 }
 
-// function extractAppellee(dataText) {
-//   const appelleeTarget = /(RECORRIDO|RECORRIDA|EMBARGADO|EMBARGADA)(.*?)\n/gi;
-//   // const appellee = appelleeTarget.test(dataText) ? appelleeTarget.exec(dataText)[2].toUpperCase().replace(/: /, '').trim() : 'N/D';
-//   const appellee = appelleeTarget.exec(dataText)[2].toUpperCase().replace(/: /, '').trim();
-//   console.log('>> RECORRIDO:', appellee);
-//   return appellee;
-// }
-
 function extractAppellee(dataText) {
-  const appelleeTarget = /(RECORRIDO|RECORRIDA|EMBARGADO|EMBARGADA)(.*?)\n/gi;
+  const appelleeTarget = /(RECORRIDO\(A\)|RECORRIDO|RECORRIDA|EMBARGADO|EMBARGADA)(.*?)\n/gi;
   const result = appelleeTarget.exec(dataText);
   if (!result) return 'N/D';
-  const appellee = result[2].toUpperCase().replace(/: /, '').trim();
-  console.log('>> RECORRENTE:', appellee);
+  // const appellee = result[2].toUpperCase().replace(/: /, '').replace(':.', '').replace('/RECORRENTE', '').replace('(VOLUNTÁRIO)', '').replace('(EMBARGO)', '').replace('(EX-OFFÍCIO)', '').trim();
+  const appellee = result[2].toUpperCase().replace(/: |:.|\/RECORRENTE/g, '').replace(/(\(VOLUNTÁRIO\)|\(EMBARGO\)|\(EX-OFFÍCIO\))/g, '').trim();
+  console.log('>> RECORRIDO:', appellee);
   return appellee;
 }
 
 function extractReporter(dataText) {
-  const reporterTarget = /(RELATOR|RELATORA)(.*?)\n/gi;
-  // const reporter = reporterTarget.test(dataText) ? reporterTarget.exec(dataText)[2].toUpperCase().replace(/^: CONSELHEIRO|^: CONSELHEIRA|: |\./gi, '').trim() : 'N/D';
-  const reporter = reporterTarget.exec(dataText)[2].toUpperCase().replace(/^: CONSELHEIRO|^: CONSELHEIRA|: |\./gi, '').trim();
+  const reporterTarget = /(RELATOR\(A\)|RELATORA|RELATOR)(.*?)\n/gi;
+  const result = reporterTarget.exec(dataText);
+  if (!result) return 'N/D';
+  // const reporter = result[2].toUpperCase().replace(/PARA O VOTO|P\/ VOTO|^: CONSELHEIRO|^: CONSELHEIRA|: |\./gi, '').trim();
+  const reporter = result[2].toUpperCase().replace(/CONSELHEIRO|CONSELHEIRA|PARA O VOTO|P\/ VOTO|: |\./gi, '').trim();
   console.log('>> RELATOR:', reporter);
   return reporter;
 }
