@@ -36,7 +36,154 @@ const acs = [
 // copyFiles(acs);
 
 
-const text = ': 07 de dezembro de 2022';
-const date = text.replace(/^\s*:\s*/, '');
-console.log(date);
+// const text = ': 07 de dezembro de 2022';
+// const date = text.replace(/^\s*:\s*/, '');
+// console.log(date);
 
+// const dataText = "REFERÊNCIA: Processo n. 2019.008705-0.\nASSUNTO: Recurso oficio.\nRECORRENTE: Ponta Distribuidora Alimentos e Serviços Ltda.\nRECORRIDO: A Fazenda Pública Municipal Parnamirim.\nRELATOR: Conselheiro Hudson Svante Bezerra Pereira.";
+// const regex = /RECORRENTE: (.+)\./;
+// const match = regex.exec(text);
+// const company = match[1];
+// console.log(company);
+
+// const dataText = "PREFEITURA MUNICIPAL DE PARNAMIRIM\nCONSELHO MUNICIPAL DE CONTRIBUINTES\n\n\n\n\n\nPROCESSO: Nº: 2016.004639-9\nRECORRIDA: EDITORA TRIBUNA DE PARNAMIRIM\nRECORRENTE: FAZENDA MUNICIPAL\nRELATOR: CONSELHEIRO MIRABEAU BATISTA DE MORAIS JÚNIOR\n\nEMENTA: TRIBUTÁRIO. FALTA DE\nRECOLHIMENTO     DA     TAXA     DE     LICENÇA     E\nFUNCIONAMENTO. AUTO DE INFRAÇÃO.\nADIMPLEMENTO    DA    OBRIGAÇÃO    TRIBUTÁRIA\nPRINCIPAL  ANTES  DA  CIENTIFICAÇÃO  DO  AUTO\nDE INFRAÇÃO. EXTINÇÃO DO CRÉDITO\nTRIBUTÁRIO. RECURSO  DE  OFÍCIO  CONHECIDO  E\nIMPROVIDO.\n\n Vistos,  relatados  e  discutidos  estes  autos,  acordam  os  membros  presentes  deste  Conselho\nMunicipal de Contribuintes – CMC,  por unanimidade,  em  conhecer  do recurso interposto, julgando\nIMPROCEDENTE  o  presente  recurso,  determinando  a  baixa  imediata  do  Auto  de  Infração  nº\n5.00212163, extinto pelo pagamento nos termos do art. 156, I do Código Tributário Nacional.\n\nParnamirim, 18 de abril de 2018.\n\n\n\nGustavo da Silva Santos\nPRESIDENTE\n\n\n\nMIRABEAU BATISTA DE MORAIS JÚNIOR\nCONSELHEIRO RELATOR";
+
+const dataText1 = `ESTADO DO RIO GRANDE DO NORTE
+PREFEITURA MUNICIPAL DE PARNAMIRIM
+CONSELHO MUNICIPAL DE CONTRIBUINTES
+
+
+
+REFERÊNCIA: Processo n. 2019.008705-0.
+ASSUNTO: Recurso oficio.
+RECORRENTE: Ponta Distribuidora Alimentos e Serviços Ltda.
+RECORRIDO: A Fazenda Pública Municipal Parnamirim.
+RELATOR: Conselheiro Hudson Svante Bezerra Pereira.
+
+TRIBUTÁRIO.  ISSQN.  RECLAMAÇÃO  CONTRA
+AUTO  DE  INFRAÇÃO.  CONSTRUÇÃO  CIVIL.
+BEM     IMÓVEL     ADQUIRIDO     EM     HASTA
+PÚBLICA.  INTELIGÊNCIA  DO  ART.  173,  CTN.
+PRAZO    DECADENCIAL    DE    CINCO    ANOS.
+CONFIGURAÇÃO DA DECADÊNCIA
+ADMINISTRATIVA  TRIBUTÁRIA  DO  CRÉDITO
+TRIBUTÁRIO. RECURSO DE OFÍCIO
+CONHECIDO E NÃO PROVIDO.
+
+ Vistos,  relatados  e  discutidos  estes  autos,  acordam  os  membros
+deste  Conselho  Municipal  de  Contribuintes – CMC,  por  unanimidade  dos  votos,  em
+conhecer do recurso voluntário interposto, para em seguida, negar-lhe provimento, nos
+termos do voto do relator.
+
+
+Data de Julgamento: 27 de abril de 2022.
+
+
+Data de leitura e aprovação: 04 de maio de 2022.
+
+
+Parnamirim/RN, 04 de maio de 2022.
+
+
+
+Francisco Josenildo Olinto Bezerra
+Conselheiro Presidente
+
+
+Hudson Svante Bezerra Pereira
+Conselheiro Relator
+ACÓRDÃO
+Nº 028/2022`
+
+
+const dataText2 = `
+PREFEITURA MUNICIPAL DE PARNAMIRIM
+CONSELHO MUNICIPAL DE CONTRIBUINTES
+
+
+
+
+
+PROCESSO: Nº: 2016.004639-9
+RECORRIDA: EDITORA TRIBUNA DE PARNAMIRIM
+RECORRENTE: FAZENDA MUNICIPAL
+RELATOR: CONSELHEIRO MIRABEAU BATISTA DE MORAIS JÚNIOR
+
+
+EMENTA: TRIBUTÁRIO. FALTA DE
+RECOLHIMENTO     DA     TAXA     DE     LICENÇA     E
+FUNCIONAMENTO. AUTO DE INFRAÇÃO.
+ADIMPLEMENTO    DA    OBRIGAÇÃO    TRIBUTÁRIA
+PRINCIPAL  ANTES  DA  CIENTIFICAÇÃO  DO  AUTO
+DE INFRAÇÃO. EXTINÇÃO DO CRÉDITO
+TRIBUTÁRIO. RECURSO  DE  OFÍCIO  CONHECIDO  E
+IMPROVIDO.
+
+
+ Vistos,  relatados  e  discutidos  estes  autos,  acordam  os  membros  presentes  deste  Conselho
+Municipal de Contribuintes – CMC,  por unanimidade,  em  conhecer  do recurso interposto, julgando
+IMPROCEDENTE  o  presente  recurso,  determinando  a  baixa  imediata  do  Auto  de  Infração  nº
+5.00212163, extinto pelo pagamento nos termos do art. 156, I do Código Tributário Nacional.
+
+Parnamirim, 18 de abril de 2018.
+
+
+
+Gustavo da Silva Santos
+PRESIDENTE
+
+
+
+MIRABEAU BATISTA DE MORAIS JÚNIOR
+CONSELHEIRO RELATOR
+
+A C Ó R D Ã O N. º 04/2018
+Warning: TT: undefined function: 32
+`
+
+const dataText3 = `
+ PREFEITURA MUNICIPAL DE PARNAMIRIM CONSELHO MUNICIPAL DE
+CONTRIBUINTES
+A C Ó R D Ã O N. º 0015/2022
+PROCESSO Nº.: 2018/001074-8
+RECORRIDO: MAGNA ANIZERETHE LEITE DANTAS
+RECORRENTE: FAZENDA PÚBLICA MUNICIPAL
+RELATOR: MARCOS FERNANDES DA SILVA
+EMENTA: TRIBUTÁRIO. IPTU. RECLAMAÇÃO CONTRA LANÇAMENTO
+.BASE DE CÁLCULO . CONTRIBUIÇÃO E LANÇAMENTO DE CRÉDITO
+TRIBUTÁRIO. RECURSO DE OFÍCIO CONHECIDO E IMPROVIDO.
+Vistos, relatados e discutidos estes autos, acordam os membros deste Conselho Municipal
+de Contribuintes – CMC, por unanimidade dos votos, em conhecer do recurso de ofício
+interposto, para em seguida, negar-lhe provimento, nos termos do voto do relator.
+ PRECEDENTE. ACÓRDÃO: 123/2025
+Data de Julgamento: 06 de Abril de 2022.
+Data de leitura e aprovação: 13 de Abril de 2022.
+Parnamirim/RN, 13 de abril de 2022.
+FRANCISCO JOSENILDO OLINTO BEZERRA
+PRESIDENTE
+MARCOS FERNANDES DA SILVA
+CONSELHEIRO RELATOR
+`
+
+// const text1 = ': Ponta Distribuidora Alimentos e Serviços Ltda.';
+// const text2 = ': FAZENDA MUNICIPAL';
+// const text3 = ': FAZENDA PÚBLICA MUNICIPAL';
+
+// const extractedText =  text1.replace(/: (.+)\./, '$1');
+// const extractedText2 = text2.replace(/: (.+)\./, '$1');
+// const extractedText3 = text3.replace(/: (.+)\./, '$1');
+
+// console.log(extractedText); // "Ponta Distribuidora Alimentos e Serviços Ltda."
+// console.log(extractedText2); // "FAZENDA MUNICIPAL"
+// console.log(extractedText3); // "FAZENDA PÚBLICA MUNICIPAL"
+
+
+function extractReporter(dataText) {
+  const reporterTarget = /RELATOR(.*?)\n/gi;
+  const reporter = reporterTarget.exec(dataText)[1].toUpperCase().replace(/^: CONSELHEIRO|^: CONSELHEIRA|: |\./gi, '').trim() || 'N/D';
+  console.log(reporter);
+  return reporter;
+}
+
+
+extractReporter(dataText1);

@@ -18,6 +18,7 @@ async function exportResultsToExcel() {
   var workbook = xlsx.utils.book_new();
   var worksheet = xlsx.utils.json_to_sheet(judgments);
   xlsx.utils.book_append_sheet(workbook, worksheet, sheetName);
+
   try {
     xlsx.writeFile(workbook, filePath, { bookType: 'xlsx' });
   } catch (error) {
@@ -25,28 +26,12 @@ async function exportResultsToExcel() {
   }
 }
 
-async function extractData(dataText, file) {
-  console.log('Lendo Arquivo: ', file);
-
-  const extractedData = {
-    num_processo: extractProcessNumber(dataText),
-    num_acordao: extractJudgmentNumber(dataText),
-    obrigacao_tributaria: extractTaxObligation(dataText),
-    tipo_recurso: extractAppealType(dataText),
-    resultado_recurso: extractAppealResult(dataText),
-    data_julgamento: extractJudgmentDate(dataText),
-    nome_arquivo: extractFileName(file),
-  };
-
-  judgments.push(extractedData);
-}
-
 function extractFileName(file) {
   return file;
 }
 
 function extractProcessNumber(dataText) {
-  let processNumber = /PROCESSO(.*?)\n/gi.exec(dataText)[1].trim().replace(/[^\d]/g, '').substring(0, 11) || 'N/D';
+  const processNumber = /PROCESSO(.*?)\n/gi.exec(dataText)[1].trim().replace(/[^\d]/g, '').substring(0, 11) || 'N/D';
   return processNumber;
 }
 
@@ -84,21 +69,83 @@ function extractTaxObligation(dataText) {
 
 function extractAppealType(dataText) {
   const appealTypeTargets = /RECURSO VOLUNT(ÁRIO|ARIO)|RECURSO\s+VOLUNT(ÁRIO|ARIO)|RECURSO DE\s+VOLUNTÁRIO/gi;
-  let appealType = appealTypeTargets.test(dataText) ? 'RECURSO VOLUNTÁRIO' : 'RECURSO DE OFÍCIO';
+  const appealType = appealTypeTargets.test(dataText) ? 'RECURSO VOLUNTÁRIO' : 'RECURSO DE OFÍCIO';
   return appealType;
 }
 
 function extractAppealResult(dataText) {
   const appealResultTargets = /IMPROVIDO|DESPROVIDO|PARCIALMENTE PROVIDO|PARCIALMENTE\s+PROVIDO|PROVIDO|JULGAR EXTINTO/gi;
-  let appealResult = appealResultTargets.test(dataText) ?
+  const appealResult = appealResultTargets.test(dataText) ?
     dataText.toUpperCase().match(appealResultTargets)[0].replace(/DESPROVIDO/gi, 'IMPROVIDO').replace(/JULGAR EXTINTO/gi, 'EXTINTO') : 'NÃO CONHECIDO';
   return appealResult;
 }
 
 function extractJudgmentDate(dataText) {
   const judgmentDateTargets = /(Data de julgamento|Data do julgamento|Parnamirim,)(.*?)\./gi;
-  let judgmentDate = judgmentDateTargets.exec(dataText)?.[2].trim().replace(/^\s*:\s*/, '') || 'N/D';
+  const judgmentDate = judgmentDateTargets.exec(dataText)?.[2].trim().replace(/^\s*:\s*/, '') || 'N/D';
   return judgmentDate;
+}
+
+// function extractAppellant(dataText) {
+//   const appellantTarget = /(RECORRENTE|EMBARGANTE)(.*?)\n/gi;
+//   console.log(appellantTarget.test(dataText));
+//   // const appellant = appellantTarget.test(dataText) ? appellantTarget.exec(dataText)[2].toUpperCase().replace(/: /, '').trim() : 'N/D';
+//   const appellant = appellantTarget.exec(dataText)[2].toUpperCase().replace(/: /, '').trim() ;
+//   console.log('>> RECORRENTE:', appellant);
+//   return appellant;
+// }
+
+function extractAppellant(dataText) {
+  const appellantTarget = /(RECORRENTE|EMBARGANTE)(.*?)\n/gi;
+  const result = appellantTarget.exec(dataText);
+  if (!result) return 'N/D';
+  const appellant = result[2].toUpperCase().replace(/: /, '').trim();
+  console.log('>> RECORRENTE:', appellant);
+  return appellant;
+}
+
+// function extractAppellee(dataText) {
+//   const appelleeTarget = /(RECORRIDO|RECORRIDA|EMBARGADO|EMBARGADA)(.*?)\n/gi;
+//   // const appellee = appelleeTarget.test(dataText) ? appelleeTarget.exec(dataText)[2].toUpperCase().replace(/: /, '').trim() : 'N/D';
+//   const appellee = appelleeTarget.exec(dataText)[2].toUpperCase().replace(/: /, '').trim();
+//   console.log('>> RECORRIDO:', appellee);
+//   return appellee;
+// }
+
+function extractAppellee(dataText) {
+  const appelleeTarget = /(RECORRIDO|RECORRIDA|EMBARGADO|EMBARGADA)(.*?)\n/gi;
+  const result = appelleeTarget.exec(dataText);
+  if (!result) return 'N/D';
+  const appellee = result[2].toUpperCase().replace(/: /, '').trim();
+  console.log('>> RECORRENTE:', appellee);
+  return appellee;
+}
+
+function extractReporter(dataText) {
+  const reporterTarget = /(RELATOR|RELATORA)(.*?)\n/gi;
+  // const reporter = reporterTarget.test(dataText) ? reporterTarget.exec(dataText)[2].toUpperCase().replace(/^: CONSELHEIRO|^: CONSELHEIRA|: |\./gi, '').trim() : 'N/D';
+  const reporter = reporterTarget.exec(dataText)[2].toUpperCase().replace(/^: CONSELHEIRO|^: CONSELHEIRA|: |\./gi, '').trim();
+  console.log('>> RELATOR:', reporter);
+  return reporter;
+}
+
+async function extractData(dataText, file) {
+  console.log('---------------Lendo Arquivo: ', file);
+
+  const extractedData = {
+    num_processo: extractProcessNumber(dataText),
+    num_acordao: extractJudgmentNumber(dataText),
+    obrigacao_tributaria: extractTaxObligation(dataText),
+    tipo_recurso: extractAppealType(dataText),
+    resultado_recurso: extractAppealResult(dataText),
+    data_julgamento: extractJudgmentDate(dataText),
+    recorrente: extractAppellant(dataText),
+    recorrido: extractAppellee(dataText),
+    relator: extractReporter(dataText),
+    nome_arquivo: extractFileName(file)
+  };
+
+  judgments.push(extractedData);
 }
 
 async function getDataTextFromPdf() {
