@@ -91,7 +91,6 @@ function extractAppellant(dataText) {
   const result = appellantTargets.exec(dataText);
   if (!result) return 'N/D';
   const appellant = result[2].toUpperCase().replace(/: |:.|\/RECORRIDA|\/RECORRIDO/g, '').replace(/(\(VOLUNTÁRIO\)|\(EMBARGO DECLARATÓRIO\)|\(EMBARGO|\(EX-OFFÍCIO\))/g, '').trim().replace(/\.$|\/$/, '').trim();
-  console.log('>> RECORRENTE:', appellant);
   return appellant;
 }
 
@@ -100,7 +99,6 @@ function extractAppellee(dataText) {
   const result = appelleeTargets.exec(dataText);
   if (!result) return 'N/D';
   const appellee = result[2].toUpperCase().replace(/: |:.|\/RECORRENTE/g, '').replace(/(\(VOLUNTÁRIO\)|\(EMBARGO\)|\(EX-OFFÍCIO\))/g, '').trim().replace(/\.$|\/$/, '').trim();
-  console.log('>> RECORRIDO:', appellee);
   return appellee;
 }
 
@@ -109,12 +107,18 @@ function extractReporter(dataText) {
   const result = reporterTargets.exec(dataText);
   if (!result) return 'N/D';
   const reporter = result[2].toUpperCase().replace(/CONSELHEIRO|CONSELHEIRA|PARA O VOTO|P\/ VOTO|: |\./gi, '').trim();
-  console.log('>> RELATOR:', reporter);
   return reporter;
 }
 
+function extractDecisionComposition(dataText) {
+  const decisionCompositionTargets = /UNANIMEMENTE|UNANIMIDADE|ACORDAM  A  MAIORIA|POR MAIORIA|POR\s+MAIORIA/gi;
+  const decisionComposition = decisionCompositionTargets.test(dataText) ?
+  dataText.toUpperCase().match(decisionCompositionTargets)[0].replace(/  /g, ' ').replace('UNANIMEMENTE', 'UNANIMIDADE').replace('ACORDAM A', 'POR') : 'N/D';
+  return decisionComposition;
+}
+
 async function extractData(dataText, file) {
-  console.log('---------------Lendo Arquivo: ', file);
+  console.log('--> Lendo Arquivo: ', file);
 
   const extractedData = {
     num_processo: extractProcessNumber(dataText),
@@ -126,6 +130,7 @@ async function extractData(dataText, file) {
     recorrente: extractAppellant(dataText),
     recorrido: extractAppellee(dataText),
     relator: extractReporter(dataText),
+    composicao_decisao: extractDecisionComposition(dataText),
     nome_arquivo: extractFileName(file)
   };
 
