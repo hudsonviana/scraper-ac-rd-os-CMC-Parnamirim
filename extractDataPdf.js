@@ -87,30 +87,27 @@ function extractJudgmentDate(dataText) {
 }
 
 function extractAppellant(dataText) {
-  const appellantTarget = /(RECORRENTE|EMBARGANTE)(.*?)\n/gi;
-  const result = appellantTarget.exec(dataText);
+  const appellantTargets = /(RECORRENTE|EMBARGANTE)(.*?)\n/gi;
+  const result = appellantTargets.exec(dataText);
   if (!result) return 'N/D';
-  // const appellant = result[2].toUpperCase().replace(/: /, '').replace(':.', '').replace(/\/RECORRIDA|\/RECORRIDO/g, '').replace('(VOLUNTÁRIO)','').replace('(EMBARGO','').replace('(EX-OFFÍCIO)','').replace('(EMBARGO DECLARATÓRIO)', '').trim();
-  const appellant = result[2].toUpperCase().replace(/: |:.|\/RECORRIDA|\/RECORRIDO/g, '').replace(/(\(VOLUNTÁRIO\)|\(EMBARGO DECLARATÓRIO\)|\(EMBARGO|\(EX-OFFÍCIO\))/g, '').trim();
+  const appellant = result[2].toUpperCase().replace(/: |:.|\/RECORRIDA|\/RECORRIDO/g, '').replace(/(\(VOLUNTÁRIO\)|\(EMBARGO DECLARATÓRIO\)|\(EMBARGO|\(EX-OFFÍCIO\))/g, '').trim().replace(/\.$|\/$/, '').trim();
   console.log('>> RECORRENTE:', appellant);
   return appellant;
 }
 
 function extractAppellee(dataText) {
-  const appelleeTarget = /(RECORRIDO\(A\)|RECORRIDO|RECORRIDA|EMBARGADO|EMBARGADA)(.*?)\n/gi;
-  const result = appelleeTarget.exec(dataText);
+  const appelleeTargets = /(RECORRIDO\(A\)|RECORRIDO|RECORRIDA|EMBARGADO|EMBARGADA)(.*?)\n/gi;
+  const result = appelleeTargets.exec(dataText);
   if (!result) return 'N/D';
-  // const appellee = result[2].toUpperCase().replace(/: /, '').replace(':.', '').replace('/RECORRENTE', '').replace('(VOLUNTÁRIO)', '').replace('(EMBARGO)', '').replace('(EX-OFFÍCIO)', '').trim();
-  const appellee = result[2].toUpperCase().replace(/: |:.|\/RECORRENTE/g, '').replace(/(\(VOLUNTÁRIO\)|\(EMBARGO\)|\(EX-OFFÍCIO\))/g, '').trim();
+  const appellee = result[2].toUpperCase().replace(/: |:.|\/RECORRENTE/g, '').replace(/(\(VOLUNTÁRIO\)|\(EMBARGO\)|\(EX-OFFÍCIO\))/g, '').trim().replace(/\.$|\/$/, '').trim();
   console.log('>> RECORRIDO:', appellee);
   return appellee;
 }
 
 function extractReporter(dataText) {
-  const reporterTarget = /(RELATOR\(A\)|RELATORA|RELATOR)(.*?)\n/gi;
-  const result = reporterTarget.exec(dataText);
+  const reporterTargets = /(RELATOR\(A\)|RELATORA|RELATOR)(.*?)\n/gi;
+  const result = reporterTargets.exec(dataText);
   if (!result) return 'N/D';
-  // const reporter = result[2].toUpperCase().replace(/PARA O VOTO|P\/ VOTO|^: CONSELHEIRO|^: CONSELHEIRA|: |\./gi, '').trim();
   const reporter = result[2].toUpperCase().replace(/CONSELHEIRO|CONSELHEIRA|PARA O VOTO|P\/ VOTO|: |\./gi, '').trim();
   console.log('>> RELATOR:', reporter);
   return reporter;

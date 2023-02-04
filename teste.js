@@ -178,12 +178,14 @@ CONSELHEIRO RELATOR
 // console.log(extractedText3); // "FAZENDA PÚBLICA MUNICIPAL"
 
 
-function extractReporter(dataText) {
-  const reporterTarget = /RELATOR(.*?)\n/gi;
-  const reporter = reporterTarget.exec(dataText)[1].toUpperCase().replace(/^: CONSELHEIRO|^: CONSELHEIRA|: |\./gi, '').trim() || 'N/D';
-  console.log(reporter);
-  return reporter;
-}
+// function extractReporter(dataText) {
+//   const reporterTarget = /RELATOR(.*?)\n/gi;
+//   const reporter = reporterTarget.exec(dataText)[1].toUpperCase().replace(/^: CONSELHEIRO|^: CONSELHEIRA|: |\./gi, '').trim() || 'N/D';
+//   console.log(reporter);
+//   return reporter;
+// }
+// extractReporter(dataText1);
 
-
-extractReporter(dataText1);
+const text = "GEYSA.com PEREIRA DE MACEDO.";
+const cleanedText = text.replace(/\.$|\/$/, '');
+console.log(cleanedText); // Output: "GEYSA PEREIRA DE MACEDO"
