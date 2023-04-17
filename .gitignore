@@ -1,1 +1,5 @@
 /node_modules
+/acordãos_baixados
+*.xls
+*.xlsx
+*.xlsm

@@ -3,7 +3,7 @@ const pdfParse = require('pdf-parse');
 const xlsx = require('xlsx');
 const path = require('path');
 
-const pathPdf = 'data';
+const pathPdf = 'acordãos_baixados';
 const files = fs.readdirSync(pathPdf);
 let judgments = [];
 
@@ -118,8 +118,6 @@ function extractDecisionComposition(dataText) {
 }
 
 async function extractData(dataText, file) {
-  console.log('--> Lendo Arquivo: ', file);
-
   const extractedData = {
     num_processo: extractProcessNumber(dataText),
     num_acordao: extractJudgmentNumber(dataText),
@@ -138,15 +136,24 @@ async function extractData(dataText, file) {
 }
 
 async function getDataTextFromPdf() {
-  await Promise.all(files.map(async (file) => {
-    await pdfParse(`${pathPdf}/${file}`).then(async (data) => {
-      const dataText = data.text;
-      // console.log(dataText);
-      await extractData(dataText, file);
-    });
-  }));
+  console.time('Tempo de execução')
+
+  try {
+    await Promise.all(files.map(async (file) => {
+      await pdfParse(`${pathPdf}/${file}`).then(async (data) => {
+        console.log(`- Lendo Arquivo ${files.indexOf(file) + 1}/${files.length}:`, file);
+        const dataText = data.text;
+        // console.log(dataText);
+        await extractData(dataText, file);
+      });
+    }));
+  } catch (error) {
+    console.log(`Erro ao ler arquivo:`, error);
+  }
+
   console.log(judgments);
   await exportResultsToExcel();
+  console.timeEnd('Tempo de execução')
 }
 
 getDataTextFromPdf();
