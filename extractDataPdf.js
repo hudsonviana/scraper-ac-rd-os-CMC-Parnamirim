@@ -138,18 +138,18 @@ async function extractData(dataText, file) {
 async function getDataTextFromPdf() {
   console.time('Tempo de execução')
 
-  try {
-    await Promise.all(files.map(async (file) => {
+  await Promise.all(files.map(async (file) => {
+    console.log(`- Lendo Arquivo ${files.indexOf(file) + 1}/${files.length}:`, file);
+    try {
       await pdfParse(`${pathPdf}/${file}`).then(async (data) => {
-        console.log(`- Lendo Arquivo ${files.indexOf(file) + 1}/${files.length}:`, file);
         const dataText = data.text;
         // console.log(dataText);
         await extractData(dataText, file);
       });
-    }));
-  } catch (error) {
-    console.log(`Erro ao ler arquivo:`, error);
-  }
+    } catch (error) {
+      console.log(`Erro ao ler arquivo:`, file, error);
+    }
+  }));
 
   console.log(judgments);
   await exportResultsToExcel();

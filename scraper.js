@@ -25,12 +25,14 @@ async function downloadPDFs(url) {
   for (const link of pdfLinks) {
     console.log(`Baixando ${pdfLinks.indexOf(link) + 1}/${pdfLinks.length} --> ${link}`);
     const fileName = link.split('/').pop().replace(/:/g, '.');
-    const pdfResponse = await axios({
-      url: `${urlBase}${link}`,
-      method: 'GET',
-      responseType: 'stream'
-    });
+
     try {
+      const pdfResponse = await axios({
+        url: `${urlBase}${link}`,
+        method: 'GET',
+        responseType: 'stream'
+      });
+      
       pdfResponse.data.pipe(fs.createWriteStream(path.join(downloadPath, fileName)));
     } catch (error) {
       console.log(error);
